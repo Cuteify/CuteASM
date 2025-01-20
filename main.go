@@ -1,6 +1,7 @@
 package main
 
 import (
+	"CuteASM/compile/nasm"
 	"CuteASM/lexer"
 	"CuteASM/parser"
 	"fmt"
@@ -28,7 +29,8 @@ func main() {
 	}*/
 	p := parser.NewParser(lex)
 	p.Parse()
-	pr(p.Block, 0)
+	//pr(p.Block, 0)
+	fmt.Println((&nasm.Nasm{}).Compile(p.Block))
 	/*p.CheckUnusedVar(p.Block)
 	//compile.DelEmptyCFGNode(p.Block)
 	pr(p.Block, 0)

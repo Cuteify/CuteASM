@@ -3,7 +3,8 @@ package parser
 import (
 	errorUtil "CuteASM/error"
 	"CuteASM/lexer"
-	"fmt"
+
+	//"fmt"
 	"strings"
 )
 
@@ -17,6 +18,7 @@ type Parser struct {
 	Vars        map[string]*Node
 	Types       map[string]*Node
 	DontBack    int
+	IsInFunc    bool
 }
 
 func (p *Parser) Next() (finish bool) {
@@ -26,22 +28,25 @@ func (p *Parser) Next() (finish bool) {
 		finish = true
 		return
 	}
-	fmt.Println(code)
+	//fmt.Println(code)
 	switch code.Type {
-	case lexer.LexTokenType["PSEUDO"]:
-		switch strings.ToUpper(code.Value) {
+	case lexer.PSEUDO:
+		switch code.Value {
 		case "SECTION":
 			section := &SECTION{}
 			section.Parse(p)
+		case "VAR":
+			varBlock := &VarBlock{}
+			varBlock.Parse(p)
 		}
-	case lexer.LexTokenType["NAME"]:
+	case lexer.NAME:
 		oldCursor := p.Lexer.Cursor
 		code2 := p.Lexer.Next()
 		if code2.IsEmpty() {
 			finish = true
 			return
 		}
-		if code2.Type == lexer.LexTokenType["SEPARATOR"] && code2.Value == ":" {
+		if code2.Type == lexer.SEPARATOR && code2.Value == ":" {
 			label := &LabelBlock{
 				Name: code.Value,
 			}
@@ -49,10 +54,13 @@ func (p *Parser) Next() (finish bool) {
 		} else {
 			p.Lexer.Cursor = oldCursor
 		}
+	case lexer.INSTRUCTION:
+		instruction := &Instruction{Instruction: code.Value}
+		instruction.Parse(p)
 	default:
-		/*if code.Type == lexer.LexTokenType["SEPARATOR"] && code.Value != ";" && code.Value != "\n" && code.Value != "\r" {
+		if code.Type == lexer.SEPARATOR && code.Value != ";" && code.Value != "\n" && code.Value != "\r" {
 			p.Lexer.Error.MissError("Syntax Error", p.Lexer.Cursor, "Miss "+code.Value)
-		}*/
+		}
 	}
 	return
 }
@@ -90,7 +98,7 @@ func (p *Parser) Need(value string) []lexer.Token {
 			p.Error.MissError("Syntax Error", p.Lexer.Cursor, "need '"+value+"'")
 		}
 		tmp2 = append(tmp2, tmp)
-		if tmp.Value == value && tmp.Type != lexer.LexTokenType["STRING"] && tmp.Type != lexer.LexTokenType["RAW"] {
+		if tmp.Value == value && tmp.Type != lexer.STRING {
 			return tmp2
 		}
 	}

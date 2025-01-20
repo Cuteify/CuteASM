@@ -55,15 +55,18 @@ var (
 		"INT":     7,
 		"HLT":     7,
 		"NOP":     7,
+		"PUSH":    7,
+		"POP":     7,
 		"SECTION": 8,
 		"GLOBAL":  8,
 		"BB":      8,
 		"WW":      8,
 		"DW":      8,
 		"QW":      8,
+		"VAR":     8,
 	}
 
-	// LexToken类型
+	// LexToken类型(反查用)
 	LexTokenType = map[string]int{
 		"SEPARATOR":   0x1,
 		"STRING":      0x2,
@@ -74,4 +77,16 @@ var (
 		"INSTRUCTION": 0x7,
 		"PSEUDO":      0x8,
 	}
+)
+
+const (
+	// LexToken类型
+	SEPARATOR   = 0x1
+	STRING      = 0x2
+	NUMBER      = 0x3
+	NAME        = 0x4
+	CHAR        = 0x5
+	TYPE        = 0x6
+	INSTRUCTION = 0x7
+	PSEUDO      = 0x8
 )

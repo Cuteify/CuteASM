@@ -11,7 +11,7 @@ type SECTION struct {
 
 func (s *SECTION) Parse(p *Parser) {
 	code := p.Lexer.Next()
-	if code.IsEmpty() || code.Type != lexer.LexTokenType["NAME"] {
+	if code.IsEmpty() || code.Type != lexer.NAME {
 		p.Lexer.Error.MissError("Syntax Error", p.Lexer.Cursor, "Need section Name")
 	}
 	if code.Value[0] != '.' {
@@ -19,7 +19,12 @@ func (s *SECTION) Parse(p *Parser) {
 	} else {
 		s.Name = code.Value
 	}
-	p.ThisBlock.AddChild(&Node{
+	if p.ThisBlock.Father != nil {
+		p.ThisBlock = p.Block
+	}
+	node := &Node{
 		Value: s,
-	})
+	}
+	p.ThisBlock.AddChild(node)
+	p.ThisBlock = node
 }

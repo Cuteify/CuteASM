@@ -1,4 +1,5 @@
 @echo off
-gofmt -d -w .
+cls
+gofmt -d -w -s .
 go build
 CuteASM
