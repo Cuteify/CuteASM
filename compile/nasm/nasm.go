@@ -88,6 +88,8 @@ func ParseVal(v *parser.Value) (code string) {
 		code += v.Reg.Name
 	case parser.STRING:
 		code += "\"" + v.String + "\""
+	case parser.LAEBL:
+		code += v.String
 	case parser.ADDR:
 		if v.Addr.IndexReg != nil {
 			indexReg := ParserReg(v.Addr.IndexReg)

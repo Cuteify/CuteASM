@@ -40,10 +40,10 @@ test.hiFn2:
     SUB esp, 16
     MOV DWORD[esp+8], 9
     MOV DWORD[esp+4], 78
-    CALL 
+    CALL test.hiMyLang2
     MOV DWORD[ebp+4], 5
     MOV DWORD[ebp+8], 6
-    MOV , 1
+    MOV else_if_3, 1
     if_3:
         MOV DWORD[ebp+8], 0
     else_if_3:
@@ -78,13 +78,13 @@ test.print0:
     MOV ebp, esp
     SUB esp, 4
     PUSH 
-    CALL 
+    CALL GetStdHandle@1
     PUSH 0
     PUSH 0
-    PUSH 
-    PUSH 
+    PUSH messageLen
+    PUSH message
     PUSH EAX
-    CALL 
+    CALL WriteFile
     XOR EAX, EAX
     ADD esp, 4
     POP ebp
@@ -104,8 +104,8 @@ test.main0:
     SUB esp, 12
     MOV DWORD[esp+12], 1
     MOV DWORD[esp+8], 100
-    CALL 
-    CALL 
+    CALL test.hiFn2
+    CALL test.print0
     ADD esp, 12
     POP ebp
     RET
@@ -119,7 +119,7 @@ main:
     PUSH ESP
     MOV EBP, ESP
     SUB ESP, 0
-    CALL 
+    CALL test.main0()
     RET
 
 ; Function End:main

@@ -13,6 +13,7 @@ const (
 	VAR    = 4
 	PSEUDO = 5
 	REG    = 6
+	LAEBL  = 7
 )
 
 type MemoryAddr struct {
@@ -89,6 +90,9 @@ func (v *Value) Parse(p *Parser, tokens []lexer.Token) {
 		v.Addr = v.parseMemoryAddress(p, tokens[2:len(tokens)-1]) // 去掉方括号
 		v.Addr.Length = length
 		v.Type = ADDR
+	} else if isLabel(tokens) {
+		v.String = parseLabel(tokens)
+		v.Type = LAEBL
 	}
 }
 
@@ -222,4 +226,20 @@ func containsRegister(tokens []lexer.Token) bool {
 		return false
 	}
 	return tokens[0].Value == "$" || tokens[1].Value == "$" || tokens[2].Value[0] == 'r'
+}
+
+func isLabel(tokens []lexer.Token) bool {
+	for _, token := range tokens {
+		if token.Type != lexer.NAME && token.Type != lexer.SEPARATOR {
+			return false
+		}
+	}
+	return true
+}
+
+func parseLabel(tokens []lexer.Token) (label string) {
+	for _, token := range tokens {
+		label += token.Value
+	}
+	return
 }
