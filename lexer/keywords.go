@@ -71,6 +71,7 @@ var (
 		"PUSHAD":        7,
 		"RET/RETF":      7,
 		"ROL":           7,
+		"RET":           7,
 		"ROR":           7,
 		"RCL":           7,
 		"RCR":           7,

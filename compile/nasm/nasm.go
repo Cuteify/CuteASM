@@ -88,6 +88,24 @@ func ParseVal(v *parser.Value) (code string) {
 		code += v.Reg.Name
 	case parser.STRING:
 		code += "\"" + v.String + "\""
+	case parser.ADDR:
+		if v.Addr.IndexReg != nil {
+			indexReg := ParserReg(v.Addr.IndexReg)
+			if v.Addr.Scale == 1 {
+				code += "+" + indexReg
+			} else {
+				code += "+" + strconv.Itoa(v.Addr.Scale) + "*" + indexReg
+			}
+		} else if v.Addr.BaseReg != nil {
+			baseReg := ParserReg(v.Addr.BaseReg)
+			if v.Addr.Displacement == 0 {
+				code += getLengthName(v.Addr.Length) + "[" + baseReg + "]"
+			} else {
+				code += getLengthName(v.Addr.Length) + "[" + baseReg + "+" + strconv.Itoa(int(v.Addr.Displacement)) + "]"
+			}
+		} else if v.Addr.LabelRef != "" {
+			code += v.Addr.LabelRef
+		}
 	}
 	return
 }
@@ -105,4 +123,17 @@ func getLengthName(size int) string {
 	default:
 		return ""
 	}
+}
+
+func ParserReg(reg *parser.Reg) string {
+	if reg.Name == "" {
+		reg.Name = Regs[reg.Num]
+	}
+	if reg.Name == "sp" {
+		reg.Name = "esp"
+	}
+	if reg.Name == "bp" {
+		reg.Name = "ebp"
+	}
+	return reg.Name
 }

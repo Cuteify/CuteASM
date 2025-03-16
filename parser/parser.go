@@ -3,6 +3,7 @@ package parser
 import (
 	errorUtil "CuteASM/error"
 	"CuteASM/lexer"
+	"fmt"
 
 	//"fmt"
 	"strings"
@@ -57,6 +58,9 @@ func (p *Parser) Next() (finish bool) {
 	case lexer.INSTRUCTION:
 		instruction := &Instruction{Instruction: code.Value}
 		instruction.Parse(p)
+		if code.Value == "CALL" {
+			fmt.Println("CALL", instruction)
+		}
 	default:
 		if code.Type == lexer.SEPARATOR && code.Value != ";" && code.Value != "\n" && code.Value != "\r" {
 			p.Lexer.Error.MissError("Syntax Error", p.Lexer.Cursor, "Miss "+code.Value)

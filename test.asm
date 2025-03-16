@@ -11,7 +11,7 @@ section .text
 test.hiMyLang2:(qw hi, dw b)
     var $a, dw
     var $b, dw
-    mov $$r1, DWORD[$$rbp+12]; 保存表达式左边的值
+    mov $$r1, DW[$$rbp+12]; 保存表达式左边的值
     add $$r1, 3; 计算表达式的值
     mov $$r0, $$r1; 
     cmp $$r0, 6666; 比较表达式的值
@@ -42,21 +42,21 @@ test.hiFn2:()
     push $$rbp; 函数基指针入栈
     mov $$rbp, $$rsp; 设置基指针
     sub $$rsp, 16; 调整栈指针
-    mov DWORD[$$rsp+8], 9; 设置函数参数
-    mov DWORD[$$rsp+4], 78; 设置函数参数
+    mov DW[$$rsp+8], 9; 设置函数参数
+    mov DW[$$rsp+4], 78; 设置函数参数
     call test.hiMyLang2; 调用函数
-    mov  DWORD[$$rbp-4], 5; 设置变量
-    mov  DWORD[$$rbp-8], 6; 设置变量
+    mov  DW[$$rbp-4], 5; 设置变量
+    mov  DW[$$rbp-8], 6; 设置变量
     mov else_if_3, 1; 
     if_3:
-    mov  DWORD[$$rbp-8], 0; 设置变量
+    mov  DW[$$rbp-8], 0; 设置变量
     else_if_3:
-    mov  DWORD[$$rbp-8], 10; 设置变量
+    mov  DW[$$rbp-8], 10; 设置变量
     end_if_3:
     cmp $$r0, 0; 比较表达式的值
     jnl else_if_4; 判断后跳转到目标
     if_4:
-    mov  DWORD[$$rbp-8], 9; 设置变量
+    mov  DW[$$rbp-8], 9; 设置变量
     else_if_4:
     add $$rsp, 16; 还原栈指针
     pop $$rbp; 跳转到函数返回部分
@@ -66,7 +66,7 @@ test.hiFn2:()
     cmp $$r0, 0; 比较表达式的值
     jnl end_if_5; 判断后跳转到目标
     if_5:
-    mov  DWORD[$$rbp-8], 9; 设置变量
+    mov  DW[$$rbp-8], 9; 设置变量
     end_if_5:
     add $$rsp, 16; 还原栈指针
     pop $$rbp; 弹出函数基指针
@@ -110,8 +110,8 @@ test.main0:()
     push $$rbp; 函数基指针入栈
     mov $$rbp, $$rsp; 设置基指针
     sub $$rsp, 12; 调整栈指针
-    mov DWORD[$$rsp+12], 1; 设置函数参数
-    mov DWORD[$$rsp+8], 100; 设置函数参数
+    mov DW[$$rsp+12], 1; 设置函数参数
+    mov DW[$$rsp+8], 100; 设置函数参数
     call test.hiFn2; 调用函数
     call test.print0; 调用函数
     add $$rsp, 12; 还原栈指针
@@ -122,7 +122,7 @@ test.main0:()
 
 
 main:()
-call test.main0
+call test.main0()
 ;PRINT_STRING "MyLang First Finish!"
 ret
 
