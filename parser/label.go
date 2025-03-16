@@ -3,6 +3,7 @@ package parser
 import (
 	"CuteASM/lexer"
 	"CuteASM/utils"
+	"fmt"
 )
 
 type LabelBlock struct {
@@ -45,6 +46,7 @@ func (l *LabelBlock) Parse(p *Parser) {
 					Length: utils.GetLength(code.Value),
 				})
 				code := p.Lexer.Next()
+				fmt.Println(code)
 				if code.Type == lexer.NAME {
 					l.Args[len(l.Args)-1].Name = code.Value
 					code := p.Lexer.Next()
