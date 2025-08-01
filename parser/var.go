@@ -11,9 +11,7 @@ type VarBlock struct {
 	Length int
 }
 
-func (v *VarBlock) Parse(p *Parser) {
-	instruction := &Instruction{}
-	instruction.ParseInstruction(p)
+func (v *VarBlock) Parse(instruction *Instruction, p *Parser) {
 	if len(instruction.Args) == 2 {
 		if len(instruction.Args[0].Var.Name) > 2 && instruction.Args[0].Var.Name[1] == '$' {
 			switch instruction.Args[0].Var.Name[2:] {

@@ -10,6 +10,14 @@ func GetLength(name string) int {
 		return 4
 	case "QW":
 		return 8
+	case "TW":
+		return 10
+	case "OW":
+		return 16
+	case "YW":
+		return 32
+	case "ZW":
+		return 64
 	}
 	return 0
 }

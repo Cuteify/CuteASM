@@ -209,6 +209,35 @@ func (l *Lexer) GetToken() (Token, error) {
 				}
 			}
 			return Token{}, io.EOF
+		case "-", "+":
+			w, _ := l.GetWord()
+			if w == "" {
+				l.Back(len(w))
+				goto fallthru
+			}
+			if IsDigit(w) {
+				word2, _ := l.GetWord()
+				word3, _ := l.GetWord()
+				if word2 == "." && IsDigit(word3) {
+					token := Token{
+						Type:      NUMBER,
+						Value:     word + w + "." + word3,
+						EndCursor: l.Cursor,
+					}
+					token.Cursor = l.Cursor - len(token.Value)
+					return token, nil
+				}
+				l.Back(len(word2 + word3))
+				token := Token{
+					Type:      NUMBER,
+					Value:     word + w,
+					EndCursor: l.Cursor,
+				}
+				token.Cursor = l.Cursor - len(token.Value)
+				return token, nil
+			}
+		fallthru:
+			fallthrough
 		default:
 			return Token{
 				Type:      SEPARATOR,
@@ -292,7 +321,7 @@ func (token Token) IsEmpty() bool {
 func IsDigit(str string) bool {
 	strLength := len(str)
 	for i := 0; i < strLength; i++ {
-		if str[i] < '0' || str[i] > '9' {
+		if (str[i] < '0' || str[i] > '9') && (str[i] > 'F' || str[i] < 'A') {
 			return false
 		}
 	}

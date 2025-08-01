@@ -1,11 +1,10 @@
 package parser
 
 import (
+	"CuteASM/arch/types"
 	errorUtil "CuteASM/error"
 	"CuteASM/lexer"
-	"fmt"
 
-	//"fmt"
 	"strings"
 )
 
@@ -20,6 +19,8 @@ type Parser struct {
 	Types       map[string]*Node
 	DontBack    int
 	IsInFunc    bool
+	line        int // 添加行号计数器
+	arch        *types.Architecture
 }
 
 func (p *Parser) Next() (finish bool) {
@@ -37,8 +38,8 @@ func (p *Parser) Next() (finish bool) {
 			section := &SECTION{}
 			section.Parse(p)
 		case "VAR":
-			varBlock := &VarBlock{}
-			varBlock.Parse(p)
+			//varBlock := &VarBlock{}
+			//varBlock.Parse(p)
 		}
 	case lexer.NAME:
 		oldCursor := p.Lexer.Cursor
@@ -48,19 +49,19 @@ func (p *Parser) Next() (finish bool) {
 			return
 		}
 		if code2.Type == lexer.SEPARATOR && code2.Value == ":" {
-			label := &LabelBlock{
+			/*label := &LabelBlock{
 				Name: code.Value,
 			}
-			label.Parse(p)
+			label.Parse(p)*/
 		} else {
 			p.Lexer.Cursor = oldCursor
 		}
 	case lexer.INSTRUCTION:
-		instruction := &Instruction{Instruction: code.Value}
-		instruction.Parse(p)
-		if code.Value == "CALL" {
-			fmt.Println("CALL", instruction)
-		}
+		//instruction := &Instruction{Instruction: code.Value}
+		//instruction.Parse(p)
+		//if code.Value == "CALL" {
+		//	fmt.Println("CALL", instruction)
+		//}
 	default:
 		if code.Type == lexer.SEPARATOR && code.Value != ";" && code.Value != "\n" && code.Value != "\r" {
 			p.Lexer.Error.MissError("Syntax Error", p.Lexer.Cursor, "Miss "+code.Value)
@@ -137,10 +138,11 @@ func (p *Parser) Has(token lexer.Token, stopCursor int) int {
 	return -1
 }
 
-func NewParser(lexer *lexer.Lexer) *Parser {
+func NewParser(lexer *lexer.Lexer, Arch *types.Architecture) *Parser {
 	p := &Parser{
 		Lexer: lexer,
 		Error: lexer.Error,
+		arch:  Arch,
 	}
 	p.Block = &Node{}
 	p.ThisBlock = p.Block
@@ -149,9 +151,92 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 
 func (p *Parser) Parse() *Node {
 	for {
-		if p.Next() {
+		if !p.Line() {
 			break
 		}
 	}
 	return p.Block
+}
+
+func (p *Parser) Line() bool {
+	// 等待到行尾
+	tokens := []lexer.Token{}
+	for {
+		token := p.Lexer.Next()
+		if token.IsEmpty() && len(tokens) == 0 {
+			return false
+		}
+		if token.IsEmpty() || ((token.Value == "\n" || token.Value == ";") && token.Type == lexer.SEPARATOR) {
+			p.line++ // 遇到换行符时增加行号
+			break
+		}
+		tokens = append(tokens, token)
+	}
+	if len(tokens) == 0 {
+		return true
+	}
+	if p.isPseudo(tokens[0]) {
+		p.ParsePseudo(tokens)
+		return true
+	}
+	if p.isInstructions(tokens[0]) {
+		i := &Instruction{}
+		i.Parse(tokens, p)
+	}
+	if p.isLabel(tokens) {
+		l := &LabelBlock{}
+		l.Parse(tokens, p)
+	}
+	return true
+}
+
+func (p *Parser) isInstructions(token lexer.Token) bool {
+	instruction := types.Instruction(strings.ToUpper(token.Value))
+	_, ok := p.arch.Instructions[instruction]
+	if !ok {
+		for i := 0; i < len(types.BuiltinI); i++ {
+			if types.BuiltinI[i] == instruction {
+				ok = true
+				break
+			}
+		}
+	}
+	if token.IsEmpty() {
+		return false
+	}
+	if token.Type == lexer.NAME && ok {
+		token.Type = lexer.INSTRUCTION
+		return true
+	}
+	return false
+}
+
+func (p *Parser) isLabel(tokens []lexer.Token) bool {
+	if len(tokens) < 2 {
+		return false
+	}
+	if tokens[0].Type == lexer.NAME && tokens[1].Type == lexer.SEPARATOR && tokens[1].Value == ":" {
+		return true
+	}
+	return false
+}
+
+func (p *Parser) isPseudo(token lexer.Token) bool {
+	if token.Type == lexer.PSEUDO {
+		return true
+	}
+	return false
+}
+
+func (p *Parser) ParsePseudo(tokens []lexer.Token) {
+	instruction := &Instruction{}
+	instruction.ParseInstruction(tokens, p)
+	switch instruction.Instruction {
+	case "VAR":
+		v := &VarBlock{}
+		v.Parse(instruction, p)
+	case "SECTION":
+		//s := &SECTION{}
+		//s.Parse(instruction, p)
+	}
 }

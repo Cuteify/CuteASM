@@ -1,3 +1,4 @@
 gofmt -d -w .
+clear
 go build
-./CuteASM
+./CuteASM ./test.asm
